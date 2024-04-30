@@ -42,7 +42,7 @@ FLAGS, FLAGS_DEF = mlxu.define_flags_with_default(
     model_size='13b',
     output_dir='',
 )
-
+v_size=64256  # number tokem from tokenizer
 
 LLAMA_STANDARD_CONFIGS = {
     '1b': {
@@ -51,6 +51,7 @@ LLAMA_STANDARD_CONFIGS = {
         'n_layers': 22,
         'n_heads': 16,
         'norm_eps': 1e-6,
+        'vocab_size': v_size,
     },
     '3b': {
         'dim': 3200,
@@ -58,6 +59,7 @@ LLAMA_STANDARD_CONFIGS = {
         'n_layers': 26,
         'n_heads': 32,
         'norm_eps': 1e-6,
+        'vocab_size': v_size,
     },
     '7b': {
         'dim': 4096,
@@ -65,6 +67,7 @@ LLAMA_STANDARD_CONFIGS = {
         'n_layers': 32,
         'n_heads': 32,
         'norm_eps': 1e-6,
+        'vocab_size': v_size,
     },
     '13b': {
         'dim': 5120,
@@ -72,6 +75,7 @@ LLAMA_STANDARD_CONFIGS = {
         'n_layers': 40,
         'n_heads': 40,
         'norm_eps': 1e-6,
+        'vocab_size': v_size,
     },
     '30b': {
         'dim': 6656,
@@ -79,6 +83,7 @@ LLAMA_STANDARD_CONFIGS = {
         'n_layers': 60,
         'n_heads': 52,
         'norm_eps': 1e-6,
+        'vocab_size': v_size,
     },
     '65b': {
         'dim': 8192,
@@ -86,6 +91,7 @@ LLAMA_STANDARD_CONFIGS = {
         'n_layers': 80,
         'n_heads': 64,
         'norm_eps': 1e-5,
+        'vocab_size': v_size,
     },
 }
 
@@ -189,6 +195,7 @@ def write_model(loaded, model_path, model_size):
     write_json(index_dict, os.path.join(tmp_model_path, "pytorch_model.bin.index.json"))
 
     config = LlamaConfig(
+        vocab_size=params["vocab_size"],
         hidden_size=dim,
         intermediate_size=params["intermediate_size"],
         num_attention_heads=params["n_heads"],

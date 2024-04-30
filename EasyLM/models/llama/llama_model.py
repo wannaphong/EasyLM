@@ -19,6 +19,7 @@ from flax.linen import partitioning as nn_partitioning
 import einops
 
 import sentencepiece as spm
+from transformers import AutoTokenizer
 from transformers.configuration_utils import PretrainedConfig
 from transformers.utils import logging
 from transformers.tokenization_utils import PreTrainedTokenizer
@@ -35,10 +36,58 @@ from EasyLM.jax_utils import (
     with_sharding_constraint, get_jax_mesh, get_gradient_checkpoint_policy
 )
 
-
+v_size=64256  # number tokem from tokenizer
 LLAMA_STANDARD_CONFIGS = {
+    'small': {
+        'vocab_size': v_size,
+        'hidden_size': 768,
+        'intermediate_size': 3072,
+        'num_hidden_layers': 12,
+        'num_attention_heads': 12,
+        'max_sequence_length': 2048,
+        'initializer_range': 0.02,
+        'rms_norm_eps': 1e-6,
+        'use_cache': True,
+        'tie_word_embeddings': False,
+    },
+    'medium': {
+        'vocab_size': v_size,
+        'hidden_size': 1024,
+        'intermediate_size': 4096,
+        'num_hidden_layers': 24,
+        'num_attention_heads': 16,
+        'max_sequence_length': 2048,
+        'initializer_range': 0.02,
+        'rms_norm_eps': 1e-6,
+        'use_cache': True,
+        'tie_word_embeddings': False,
+    },
+    'large': {
+        'vocab_size': v_size,
+        'hidden_size': 1536,
+        'intermediate_size': 6144,
+        'num_hidden_layers': 24,
+        'num_attention_heads': 16,
+        'max_sequence_length': 2048,
+        'initializer_range': 0.02,
+        'rms_norm_eps': 1e-6,
+        'use_cache': True,
+        'tie_word_embeddings': False,
+    },
+    'xlarge': {
+        'vocab_size': v_size,
+        'hidden_size': 2048,
+        'intermediate_size': 8192,
+        'num_hidden_layers': 24,
+        'num_attention_heads': 32,
+        'max_sequence_length': 2048,
+        'initializer_range': 0.02,
+        'rms_norm_eps': 1e-6,
+        'use_cache': True,
+        'tie_word_embeddings': False,
+    },
     '1b': {
-        'vocab_size': 32000,
+        'vocab_size': v_size,
         'hidden_size': 2048,
         'intermediate_size': 5504,
         'num_hidden_layers': 22,
@@ -50,7 +99,7 @@ LLAMA_STANDARD_CONFIGS = {
         'tie_word_embeddings': False,
     },
     '3b': {
-        'vocab_size': 32000,
+        'vocab_size': v_size,
         'hidden_size': 3200,
         'intermediate_size': 8640,
         'num_hidden_layers': 26,
@@ -62,7 +111,7 @@ LLAMA_STANDARD_CONFIGS = {
         'tie_word_embeddings': False,
     },
     '7b': {
-        'vocab_size': 32000,
+        'vocab_size': v_size,
         'hidden_size': 4096,
         'intermediate_size': 11008,
         'num_hidden_layers': 32,
@@ -74,7 +123,7 @@ LLAMA_STANDARD_CONFIGS = {
         'tie_word_embeddings': False,
     },
     '13b': {
-        'vocab_size': 32000,
+        'vocab_size': v_size,
         'hidden_size': 5120,
         'intermediate_size': 13824,
         'num_hidden_layers': 40,
@@ -86,7 +135,7 @@ LLAMA_STANDARD_CONFIGS = {
         'tie_word_embeddings': False,
     },
     '30b': {
-        'vocab_size': 32000,
+        'vocab_size': v_size,
         'hidden_size': 6656,
         'intermediate_size': 17920,
         'num_hidden_layers': 60,
@@ -98,7 +147,7 @@ LLAMA_STANDARD_CONFIGS = {
         'tie_word_embeddings': False,
     },
     '65b': {
-        'vocab_size': 32000,
+        'vocab_size': v_size,
         'hidden_size': 8192,
         'intermediate_size': 22016,
         'num_hidden_layers': 80,
@@ -110,7 +159,7 @@ LLAMA_STANDARD_CONFIGS = {
         'tie_word_embeddings': False,
     },
     'debug': { # A small model for debugging
-        'vocab_size': 32000,
+        'vocab_size': v_size,
         'hidden_size': 128,
         'intermediate_size': 256,
         'num_hidden_layers': 2,
@@ -279,6 +328,7 @@ class LLaMAConfig(PretrainedConfig):
     def get_tokenizer_config(updates=None):
         config = ConfigDict()
         config.vocab_file = ''
+        config.pretrained_model_name_or_path = ''
         config.add_bos_token = False
         config.add_eos_token = False
 
@@ -289,14 +339,25 @@ class LLaMAConfig(PretrainedConfig):
     @classmethod
     def get_tokenizer(cls, config, padding_side='left', truncation_side='right'):
         config = cls.get_tokenizer_config(config)
-        assert config.vocab_file != '', 'vocab_file must be specified'
-        tokenizer = LLaMATokenizer(
-            vocab_file=config.vocab_file,
-            add_bos_token=config.add_bos_token,
-            add_eos_token=config.add_eos_token,
-            padding_side=padding_side,
-            truncation_side=truncation_side,
-        )
+        if config.vocab_file == '': # Cr. https://huggingface.co/Finnish-NLP/llama-3b-finnish-v2
+            assert config.pretrained_model_name_or_path != '', 'vocab_file or pretrained_model_name_or_path must be specified'
+        
+        if config.pretrained_model_name_or_path != '':
+            tokenizer = AutoTokenizer.from_pretrained(
+                config.pretrained_model_name_or_path, 
+                add_bos_token=config.add_bos_token,
+                add_eos_token=config.add_eos_token,
+                padding_side=padding_side,
+                truncation_side=truncation_side,
+            )
+        else:
+            tokenizer = LlamaTokenizer(
+                vocab_file=config.vocab_file,
+                add_bos_token=config.add_bos_token,
+                add_eos_token=config.add_eos_token,
+                padding_side=padding_side,
+                truncation_side=truncation_side,
+            )
         return tokenizer
 
     @classmethod

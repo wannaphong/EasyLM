@@ -162,8 +162,9 @@ class HuggingfaceDataset(object):
         split = self.config.split if self.config.split != '' else None
         self._tokenizer = tokenizer
         self._text_processor = text_processor
+        # Cr. https://huggingface.co/Finnish-NLP/llama-3b-finnish-v2
         self._dataset = load_dataset(
-            self.config.path, name, split=split, streaming=self.config.streaming
+            self.config.path, name, split=split, token="hf_xxx", streaming=self.config.streaming
         )
 
     def __iter__(self):
