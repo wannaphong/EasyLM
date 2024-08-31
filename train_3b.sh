@@ -26,8 +26,8 @@ python3 -m EasyLM.models.llama.llama_train \
     --optimizer.adamw_optimizer.weight_decay=1.0 \
     --optimizer.adamw_optimizer.lr=1e-4 \
     --optimizer.adamw_optimizer.end_lr=1e-5 \
-    --optimizer.adamw_optimizer.lr_warmup_steps=2000 \
-    --optimizer.adamw_optimizer.lr_decay_steps=505300 \
+    --optimizer.adamw_optimizer.lr_warmup_steps=1000 \
+    --optimizer.adamw_optimizer.lr_decay_steps=407229 \
     --optimizer.adamw_optimizer.bf16_momentum=True \
     --train_dataset.type=json \
     --train_dataset.text_processor.fields=text \
@@ -37,7 +37,7 @@ python3 -m EasyLM.models.llama.llama_train \
     --checkpointer.save_optimizer_state=True \
     --logger.online=True \
     --logger.prefix='EasyLM' \
-    --logger.project="mark13-3b" \
-    --logger.output_dir="./mark13" \
+    --logger.project="mark14-3b" \
+    --logger.output_dir="./mark14_3b" \
     --logger.wandb_dir="./"
 
