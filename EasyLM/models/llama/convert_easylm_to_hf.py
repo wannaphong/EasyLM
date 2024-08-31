@@ -50,7 +50,7 @@ LLAMA_STANDARD_CONFIGS = {
         'intermediate_size': 5504,
         'n_layers': 22,
         'n_heads': 16,
-        'norm_eps': 1e-6,
+        'norm_eps': 1e-5,
         'vocab_size': v_size,
     },
     '3b': {
@@ -58,7 +58,7 @@ LLAMA_STANDARD_CONFIGS = {
         'intermediate_size': 8640,
         'n_layers': 26,
         'n_heads': 32,
-        'norm_eps': 1e-6,
+        'norm_eps': 1e-5,
         'vocab_size': v_size,
     },
     '7b': {
@@ -66,7 +66,7 @@ LLAMA_STANDARD_CONFIGS = {
         'intermediate_size': 11008,
         'n_layers': 32,
         'n_heads': 32,
-        'norm_eps': 1e-6,
+        'norm_eps': 1e-5,
         'vocab_size': v_size,
     },
     '13b': {
@@ -74,7 +74,7 @@ LLAMA_STANDARD_CONFIGS = {
         'intermediate_size': 13824,
         'n_layers': 40,
         'n_heads': 40,
-        'norm_eps': 1e-6,
+        'norm_eps': 1e-5,
         'vocab_size': v_size,
     },
     '30b': {
@@ -82,7 +82,7 @@ LLAMA_STANDARD_CONFIGS = {
         'intermediate_size': 17920,
         'n_layers': 60,
         'n_heads': 52,
-        'norm_eps': 1e-6,
+        'norm_eps': 1e-5,
         'vocab_size': v_size,
     },
     '65b': {
