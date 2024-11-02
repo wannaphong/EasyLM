@@ -12,6 +12,8 @@ from flax.linen.attention import dot_product_attention_weights
 from flax.traverse_util import flatten_dict, unflatten_dict
 import einops
 
+import sentencepiece as spm
+from transformers import AutoTokenizer
 from transformers.configuration_utils import PretrainedConfig
 from transformers.modeling_flax_outputs import FlaxBaseModelOutput, FlaxCausalLMOutput
 from transformers.modeling_flax_utils import FlaxPreTrainedModel
@@ -20,7 +22,6 @@ from EasyLM.bpt import blockwise_ffn, blockwise_attn
 from EasyLM.jax_utils import (
     with_sharding_constraint, get_jax_mesh, get_gradient_checkpoint_policy
 )
-
 
 class LLaMAConfigurator(object):
     """ Simplified LLaMA configuration. We start from a base model and
@@ -248,10 +249,9 @@ class LLaMAConfigurator(object):
         return ('params', 'dropout', 'fcm')
 
 
-
 class RMSNorm(nn.Module):
     dim: int
-    eps: float=1e-6
+    eps: float=1e-5
     dtype: jnp.dtype=jnp.float32
     param_dtype: jnp.dtype=jnp.float32
 
